@@ -17,17 +17,20 @@ fs.readdir(inputFolder, (err, files) => {
     return;
   }
 
-  files.forEach(file => {
-    if (file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png')) {
+  files.forEach((file, index) => {
+    if (file.endsWith('.jpg') || file.endsWith('.jpeg') || file.endsWith('.png') || file.endsWith('.webp')) {
       const inputPath = `${inputFolder}/${file}`;
-      const name = file.substring(0, file.lastIndexOf('.'));
+      // const name = `img_${index + 1}`; // можно сгенерить своё имя если надо
+      const name = file.substring(0, file.lastIndexOf('.' )); // имя по-умолчанию, как назван фаил
 
       formats.forEach(format => {
         const outputPath = `${outputFolder}/${name}.${format}`;
 
         if (!fs.existsSync(outputPath)) {
           sharp(inputPath)
-            .toFormat(format, {quality: 95})
+              // если не нужно менять размер, можно просто закоментировать эту строчку
+            .resize({ width: 1920})// можно задать размер изображения, например если для галерии 600px, мы можем использовать width: 600, высота подстроиться авто.
+            .toFormat(format, {quality: 95, compressionLevel: 3})
             .toFile(outputPath, (err) => {
               if (err) {
                 console.error(err);
